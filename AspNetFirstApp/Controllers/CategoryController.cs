@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using AspNetFirstApp.Data;
-using AspNetFirstApp.Models;
+﻿using System.Collections;
+using BulkyBook.DataAccess.Data;
+using BulkyBook.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
-namespace AspNetFirstApp.Controllers
+namespace BulkyBookWeb.Controllers
 {
     public class CategoryController : Controller
     {
@@ -13,10 +16,9 @@ namespace AspNetFirstApp.Controllers
             _db = db;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<Category> categories = _db.Categories;
-            return View(categories);
+            return View(await _db.Categories.ToListAsync());
         }
 
         //GET
@@ -28,12 +30,12 @@ namespace AspNetFirstApp.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Category category)
+        public async Task<IActionResult> Create(Category category)
         {
             if (ModelState.IsValid)
             {
                 _db.Categories.Add(category);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
@@ -42,14 +44,14 @@ namespace AspNetFirstApp.Controllers
         }
 
         //GET
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id is null or <= 0)
             {
                 return NotFound();
             }
 
-            var category = _db.Categories.Find(id);
+            var category = await _db.Categories.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
@@ -61,12 +63,12 @@ namespace AspNetFirstApp.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Category category)
+        public async Task<IActionResult> Edit(Category category)
         {
             if (ModelState.IsValid)
             {
                 _db.Categories.Update(category);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
                 TempData["success"] = "Category edited successfully";
                 return RedirectToAction("Index");
             }
@@ -75,14 +77,14 @@ namespace AspNetFirstApp.Controllers
         }
 
         //GET
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id is null or <= 0)
             {
                 return NotFound();
             }
 
-            var category = _db.Categories.Find(id);
+            var category = await _db.Categories.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
@@ -94,16 +96,16 @@ namespace AspNetFirstApp.Controllers
         //POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeletePost(int? id)
+        public async Task<IActionResult> DeletePost(int? id)
         {
-            var category = _db.Categories.Find(id);
+            var category = await _db.Categories.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
             }
 
             _db.Categories.Remove(category);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }

@@ -1,7 +1,7 @@
-using AspNetFirstApp.Data;
+using BulkyBook.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AspNetFirstApp
+namespace BulkyBookWeb
 {
     public class Program
     {

@@ -1,8 +1,8 @@
-﻿using AspNetFirstApp.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using BulkyBook.Models;
 
-namespace AspNetFirstApp.Controllers
+namespace BulkyBookWeb.Controllers
 {
     public class HomeController : Controller
     {

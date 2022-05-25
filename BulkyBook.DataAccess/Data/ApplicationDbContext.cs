@@ -1,7 +1,7 @@
-﻿using AspNetFirstApp.Models;
+﻿using BulkyBook.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AspNetFirstApp.Data
+namespace BulkyBook.DataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {
