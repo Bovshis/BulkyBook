@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using BulkyBook.DataAccess.Data;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,16 +11,16 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
     [Area("Admin")]
     public class CoverTypeController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CoverTypeController(ApplicationDbContext db)
+        public CoverTypeController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _db.CoverTypes.ToListAsync());
+            return View(await _unitOfWork.CoverTypes.GetAllAsync());
         }
 
         //GET
@@ -31,12 +32,12 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CoverType coverType)
+        public async ValueTask<IActionResult> Create(CoverType coverType)
         {
             if (ModelState.IsValid)
             {
-                _db.CoverTypes.Add(coverType);
-                await _db.SaveChangesAsync();
+                await _unitOfWork.CoverTypes.AddAsync(coverType);
+                await _unitOfWork.SaveAsync();
                 TempData["success"] = "CoverType created successfully";
                 return RedirectToAction("Index");
             }
@@ -45,14 +46,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         //GET
-        public async Task<IActionResult> Edit(int? id)
+        public async ValueTask<IActionResult> Edit(int? id)
         {
             if (id is null or <= 0)
             {
                 return NotFound();
             }
 
-            var coverType = await _db.CoverTypes.FindAsync(id);
+            var coverType = await _unitOfWork.CoverTypes.GetFirstOrDefaultAsync(u => u.Id == id);
             if (coverType == null)
             {
                 return NotFound();
@@ -64,12 +65,12 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CoverType coverType)
+        public async ValueTask<IActionResult> Edit(CoverType coverType)
         {
             if (ModelState.IsValid)
             {
-                _db.CoverTypes.Update(coverType);
-                await _db.SaveChangesAsync();
+                _unitOfWork.CoverTypes.Update(coverType);
+                await _unitOfWork.SaveAsync();
                 TempData["success"] = "CoverType edited successfully";
                 return RedirectToAction("Index");
             }
@@ -78,14 +79,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         //GET
-        public async Task<IActionResult> Delete(int? id)
+        public async ValueTask<IActionResult> Delete(int? id)
         {
             if (id is null or <= 0)
             {
                 return NotFound();
             }
 
-            var coverType = await _db.CoverTypes.FindAsync(id);
+            var coverType = await _unitOfWork.CoverTypes.GetFirstOrDefaultAsync(u => u.Id == id);
             if (coverType == null)
             {
                 return NotFound();
@@ -97,16 +98,16 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeletePost(int? id)
+        public async ValueTask<IActionResult> DeletePost(int? id)
         {
-            var coverType = await _db.CoverTypes.FindAsync(id);
+            var coverType = await _unitOfWork.CoverTypes.GetFirstOrDefaultAsync(u => u.Id == id);
             if (coverType == null)
             {
                 return NotFound();
             }
 
-            _db.CoverTypes.Remove(coverType);
-            await _db.SaveChangesAsync();
+            _unitOfWork.CoverTypes.Remove(coverType);
+            await _unitOfWork.SaveAsync();
             TempData["success"] = "CoverType deleted successfully";
             return RedirectToAction("Index");
         }

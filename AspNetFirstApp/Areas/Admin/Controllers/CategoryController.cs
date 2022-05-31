@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using BulkyBook.DataAccess.Data;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,16 +11,16 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
     [Area("Admin")]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryController(ApplicationDbContext db)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _db.Categories.ToListAsync());
+            return View(await _unitOfWork.Categories.GetAllAsync());
         }
 
         //GET
@@ -31,12 +32,12 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Category category)
+        public async ValueTask<IActionResult> Create(Category category)
         {
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(category);
-                await _db.SaveChangesAsync();
+                await _unitOfWork.Categories.AddAsync(category);
+                await _unitOfWork.SaveAsync();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
@@ -45,14 +46,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         //GET
-        public async Task<IActionResult> Edit(int? id)
+        public async ValueTask<IActionResult> Edit(int? id)
         {
             if (id is null or <= 0)
             {
                 return NotFound();
             }
 
-            var category = await _db.Categories.FindAsync(id);
+            var category = await _unitOfWork.Categories.GetFirstOrDefaultAsync(u=> u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -64,12 +65,12 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Category category)
+        public async ValueTask<IActionResult> Edit(Category category)
         {
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(category);
-                await _db.SaveChangesAsync();
+                _unitOfWork.Categories.Update(category);
+                await _unitOfWork.SaveAsync();
                 TempData["success"] = "Category edited successfully";
                 return RedirectToAction("Index");
             }
@@ -78,14 +79,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         //GET
-        public async Task<IActionResult> Delete(int? id)
+        public async ValueTask<IActionResult> Delete(int? id)
         {
             if (id is null or <= 0)
             {
                 return NotFound();
             }
 
-            var category = await _db.Categories.FindAsync(id);
+            var category = await _unitOfWork.Categories.GetFirstOrDefaultAsync(u=> u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -97,16 +98,16 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeletePost(int? id)
+        public async ValueTask<IActionResult> DeletePost(int? id)
         {
-            var category = await _db.Categories.FindAsync(id);
+            var category = await _unitOfWork.Categories.GetFirstOrDefaultAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();
             }
 
-            _db.Categories.Remove(category);
-            await _db.SaveChangesAsync();
+            _unitOfWork.Categories.Remove(category);
+            await _unitOfWork.SaveAsync();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
