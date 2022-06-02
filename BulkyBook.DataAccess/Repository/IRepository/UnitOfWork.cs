@@ -17,11 +17,13 @@ namespace BulkyBook.DataAccess.Repository.IRepository
             _db = db;
             Categories = new Repository<Category>(_db);
             CoverTypes = new Repository<CoverType>(_db);
+            Products = new Repository<Product>(_db);
         }
 
         public IRepository<Category> Categories { get; }
 
         public IRepository<CoverType> CoverTypes { get; }
+        public IRepository<Product> Products { get; }
 
         public void Dispose()
         {

@@ -21,24 +21,52 @@ namespace BulkyBook.DataAccess.Repository
             _dbSet = _db.Set<T>();
         }
 
-        public T? GetFirstOrDefault(Expression<Func<T, bool>> filter)
+        public T? GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
-            return _dbSet.FirstOrDefault(filter);
+            IQueryable<T> query = _dbSet;
+            if (includeProperties != null)
+            {
+                query = includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate(query, (current, includeProp) => current.Include(includeProp));
+            }
+            return query.FirstOrDefault(filter);
         }
 
-        public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter)
+        public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
-            return await _dbSet.FirstOrDefaultAsync(filter);
+            IQueryable<T> query = _dbSet;
+            if (includeProperties != null)
+            {
+                query = includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate(query, (current, includeProp) => current.Include(includeProp));
+            }
+            return await query.FirstOrDefaultAsync(filter);
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(string? includeProperties = null)
         {
-            return _dbSet.ToList();
+            IQueryable<T> query = _dbSet;
+            if (includeProperties != null)
+            {
+                query = includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate(query, (current, includeProp) => current.Include(includeProp));
+            }
+            return query.ToList();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(string? includeProperties = null)
         {
-            return await _dbSet.ToListAsync();
+            IQueryable<T> query = _dbSet;
+            if (includeProperties != null)
+            {
+                query = includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Aggregate(query, (current, includeProp) => current.Include(includeProp));
+            }
+            return await query.ToListAsync();
         }
 
         public void Add(T entity)
