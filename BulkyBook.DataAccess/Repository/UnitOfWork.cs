@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BulkyBook.DataAccess.Data;
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 
-namespace BulkyBook.DataAccess.Repository.IRepository
+namespace BulkyBook.DataAccess.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -18,12 +19,14 @@ namespace BulkyBook.DataAccess.Repository.IRepository
             Categories = new Repository<Category>(_db);
             CoverTypes = new Repository<CoverType>(_db);
             Products = new Repository<Product>(_db);
+            Companies = new Repository<Company>(_db);
         }
 
         public IRepository<Category> Categories { get; }
 
         public IRepository<CoverType> CoverTypes { get; }
         public IRepository<Product> Products { get; }
+        public IRepository<Company> Companies { get; }
 
         public void Dispose()
         {
