@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
 {
@@ -35,10 +38,11 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public async ValueTask<IActionResult> Details(int id)
+        [HttpGet]
+        public async ValueTask<IActionResult> Details(int productId)
         {
             Product? product = await _unitOfWork.Products
-                .GetFirstOrDefaultAsync(p => p.Id == id, "Category,CoverType");
+                .GetFirstOrDefaultAsync(p => p.Id == productId, "Category,CoverType");
 
             if (product == null)
             {
@@ -48,10 +52,40 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             ShoppingCart shoppingCart = new()
             {
                 Product = product!,
+                ProductId = productId,
                 Count = 1,
             };
 
             return View(shoppingCart);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async ValueTask<IActionResult> Details(ShoppingCart shoppingCart)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                NotFound();
+            }
+
+            var cartFromDb = await _unitOfWork.ShoppingCarts
+                .GetFirstOrDefaultAsync(sc=> sc.ApplicationUserId == userId && sc.ProductId == shoppingCart.ProductId);
+            if (cartFromDb == null)
+            {
+                shoppingCart.ApplicationUserId = userId;
+                await _unitOfWork.ShoppingCarts.AddAsync(shoppingCart);
+            }
+            else
+            {
+                cartFromDb.Count += shoppingCart.Count;
+                _unitOfWork.ShoppingCarts.Update(cartFromDb);
+            }
+            await _unitOfWork.SaveAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -20,6 +20,8 @@ namespace BulkyBook.DataAccess.Repository
             CoverTypes = new Repository<CoverType>(_db);
             Products = new Repository<Product>(_db);
             Companies = new Repository<Company>(_db);
+            ShoppingCarts = new Repository<ShoppingCart>(_db);
+            ApplicationUsers = new Repository<ApplicationUser>(_db);
         }
 
         public IRepository<Category> Categories { get; }
@@ -27,6 +29,8 @@ namespace BulkyBook.DataAccess.Repository
         public IRepository<CoverType> CoverTypes { get; }
         public IRepository<Product> Products { get; }
         public IRepository<Company> Companies { get; }
+        public IRepository<ApplicationUser> ApplicationUsers { get; }
+        public IRepository<ShoppingCart> ShoppingCarts { get; }
 
         public void Dispose()
         {

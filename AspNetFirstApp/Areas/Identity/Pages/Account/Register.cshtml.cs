@@ -173,7 +173,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation($"User '{user.Name}' created a new account with password.");
                     if (Input.Role == null)
                     {
                         await _userManager.AddToRoleAsync(user, UserRoles.Indi);
