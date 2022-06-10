@@ -22,6 +22,8 @@ namespace BulkyBook.DataAccess.Repository
             Companies = new Repository<Company>(_db);
             ShoppingCarts = new Repository<ShoppingCart>(_db);
             ApplicationUsers = new Repository<ApplicationUser>(_db);
+            OrderDetails = new Repository<OrderDetail>(_db);
+            OrderHeaders = new Repository<OrderHeader>(_db);
         }
 
         public IRepository<Category> Categories { get; }
@@ -31,6 +33,8 @@ namespace BulkyBook.DataAccess.Repository
         public IRepository<Company> Companies { get; }
         public IRepository<ApplicationUser> ApplicationUsers { get; }
         public IRepository<ShoppingCart> ShoppingCarts { get; }
+        public IRepository<OrderDetail> OrderDetails { get; }
+        public IRepository<OrderHeader> OrderHeaders { get; }
 
         public void Dispose()
         {

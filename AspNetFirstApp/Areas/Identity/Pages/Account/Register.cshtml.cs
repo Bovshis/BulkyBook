@@ -124,12 +124,12 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
+            if (!await _roleManager.RoleExistsAsync(UserRole.Admin))
             {
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Comp));
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Employee));
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Indi));
+                await _roleManager.CreateAsync(new IdentityRole(UserRole.Admin));
+                await _roleManager.CreateAsync(new IdentityRole(UserRole.Comp));
+                await _roleManager.CreateAsync(new IdentityRole(UserRole.Employee));
+                await _roleManager.CreateAsync(new IdentityRole(UserRole.Indi));
             }
 
             Input = new InputModel()
@@ -165,7 +165,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                 user.PostalCode = Input.PostalCode;
                 user.Name = Input.Name;
                 user.PhoneNumber = Input.PhoneNumber;
-                if (Input.Role == UserRoles.Comp)
+                if (Input.Role == UserRole.Comp)
                 {
                     user.CompanyId = Input.CompanyId;
                 }
@@ -176,7 +176,7 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                     _logger.LogInformation($"User '{user.Name}' created a new account with password.");
                     if (Input.Role == null)
                     {
-                        await _userManager.AddToRoleAsync(user, UserRoles.Indi);
+                        await _userManager.AddToRoleAsync(user, UserRole.Indi);
                     }
                     else
                     {
