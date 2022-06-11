@@ -138,6 +138,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 };
                 await _unitOfWork.OrderDetails.AddAsync(orderDetail);
             }
+            await _unitOfWork.SaveAsync();
 
             if (applicationUser.CompanyId.GetValueOrDefault() == 0)
             {
