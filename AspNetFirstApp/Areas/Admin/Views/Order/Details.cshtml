@@ -1,5 +1,4 @@
-﻿@model BulkyBook.Models.ViewModels.OrderVM
-@using BulkyBook.Utility
+﻿@model OrderVM
 
 <form method="post">
 	<input asp-for="OrderHeader.Id" hidden />
@@ -233,7 +232,11 @@
 									</div>
 								</li>
 							</ul>
-
+                            @if (Model.OrderHeader.PaymentStatus == PaymentStatus.DelayedPayment &&
+                                 Model.OrderHeader.OrderStatus == OrderStatus.Shipped)
+                            {
+                                <input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
+                            }
 							@if (User.IsInRole(UserRole.Admin) || User.IsInRole(UserRole.Employee))
 							{
 								if (Model.OrderHeader.OrderStatus == OrderStatus.Approved)
@@ -244,11 +247,6 @@
 								{
 									<input type="submit" onclick="return validateInput()"
 									asp-action="ShipOrder" class="btn btn-primary form-control my-1" value="Ship Order" />
-								}
-								@if (Model.OrderHeader.PaymentStatus == PaymentStatus.DelayedPayment &&
-										Model.OrderHeader.OrderStatus == OrderStatus.Shipped)
-								{
-									<input type="submit" class="btn btn-success form-control my-1" value="Pay Now" />
 								}
 								@if (Model.OrderHeader.OrderStatus != OrderStatus.Refunded &&
 										Model.OrderHeader.OrderStatus != OrderStatus.Cancelled &&

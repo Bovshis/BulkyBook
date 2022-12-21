@@ -237,6 +237,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             if (cart!.Count <= 1)
             {
                 _unitOfWork.ShoppingCarts.Remove(cart);
+                HttpContext.Session.SetInt32(SessionInfo.SessionCart, _unitOfWork.ShoppingCarts
+                    .GetAllAsync(u => u.ApplicationUserId == cart.ApplicationUserId).GetAwaiter().GetResult().ToList().Count);
             }
             else
             {
@@ -256,6 +258,9 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             }
             _unitOfWork.ShoppingCarts.Remove(cart!);
             await _unitOfWork.SaveAsync();
+            HttpContext.Session.SetInt32(SessionInfo.SessionCart, _unitOfWork.ShoppingCarts
+                .GetAllAsync(u => u.ApplicationUserId == cart.ApplicationUserId).GetAwaiter().GetResult().ToList().Count);
+
             return RedirectToAction(nameof(Index));
         }
 

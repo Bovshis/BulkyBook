@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
+using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 
@@ -22,8 +23,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Product> products =
-                await _unitOfWork.Products.GetAllAsync(includeProperties: "Category,CoverType");
+            IEnumerable<Product> products = await _unitOfWork.Products.GetAllAsync(includeProperties: "Category,CoverType");
             return View(products);
         }
 
@@ -41,7 +41,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         [HttpGet]
         public async ValueTask<IActionResult> Details(int productId)
         {
-            Product? product = await _unitOfWork.Products
+            var product = await _unitOfWork.Products
                 .GetFirstOrDefaultAsync(p => p.Id == productId, "Category,CoverType");
 
             if (product == null)
@@ -77,14 +77,16 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             {
                 shoppingCart.ApplicationUserId = userId;
                 await _unitOfWork.ShoppingCarts.AddAsync(shoppingCart);
+                await _unitOfWork.SaveAsync();
+                HttpContext.Session.SetInt32(SessionInfo.SessionCart, _unitOfWork.ShoppingCarts
+                    .GetAllAsync(u => u.ApplicationUserId == userId).GetAwaiter().GetResult().ToList().Count);
             }
             else
             {
                 cartFromDb.Count += shoppingCart.Count;
                 _unitOfWork.ShoppingCarts.Update(cartFromDb);
+                await _unitOfWork.SaveAsync();
             }
-            await _unitOfWork.SaveAsync();
-
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,4 +1,5 @@
 using BulkyBook.DataAccess.Data;
+using BulkyBook.DataAccess.DbInitializer;
 using BulkyBook.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -20,9 +21,12 @@ namespace BulkyBookWeb
                 builder.Configuration.GetConnectionString("DefaultConnection")
                 ));
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders()
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
             builder.Services.AddSingleton<IEmailSender, EmailSender>();
             builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
             builder.Services.ConfigureApplicationCookie(options =>
@@ -31,7 +35,18 @@ namespace BulkyBookWeb
                 options.LogoutPath = $"/Identity/Account/Logout";
                 options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
             });
-
+            builder.Services.AddAuthentication().AddFacebook(options =>
+            {
+                options.AppId = "533257571075733";
+                options.AppSecret = "cee28519a0b06e73c034c996885febbb";
+            });
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(100);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -47,9 +62,10 @@ namespace BulkyBookWeb
 
             app.UseRouting();
             StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Value;
-            app.UseAuthentication();;
-
+            SeedDatabase(app);
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSession();
 
             app.MapRazorPages();
             app.MapControllerRoute(
@@ -57,6 +73,16 @@ namespace BulkyBookWeb
                 pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
+
+        }
+
+        static void SeedDatabase(WebApplication app)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+                dbInitializer.InitializeAsync();
+            }
         }
     }
 }

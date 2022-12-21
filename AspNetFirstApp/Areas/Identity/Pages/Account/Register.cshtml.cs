@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -124,13 +123,6 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            if (!await _roleManager.RoleExistsAsync(UserRole.Admin))
-            {
-                await _roleManager.CreateAsync(new IdentityRole(UserRole.Admin));
-                await _roleManager.CreateAsync(new IdentityRole(UserRole.Comp));
-                await _roleManager.CreateAsync(new IdentityRole(UserRole.Employee));
-                await _roleManager.CreateAsync(new IdentityRole(UserRole.Indi));
-            }
 
             Input = new InputModel()
             {
@@ -200,6 +192,15 @@ namespace BulkyBookWeb.Areas.Identity.Pages.Account
                     }
                     else
                     {
+                        if (User.IsInRole(UserRole.Admin))
+                        {
+                            TempData["success"] = "New User Created Successfully";
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+
+                        }
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
                     }
