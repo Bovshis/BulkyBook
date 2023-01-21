@@ -5,7 +5,7 @@ using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
 {
@@ -23,8 +23,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Product> products = await _unitOfWork.Products.GetAllAsync(includeProperties: "Category,CoverType");
-            return View(products);
+            IEnumerable<Book> books = await _unitOfWork.Books.GetAllAsync(includeProperties: "SubCategory,Products");
+            return View(books);
         }
 
         public IActionResult Privacy()
@@ -39,15 +39,24 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         }
 
         [HttpGet]
-        public async ValueTask<IActionResult> Details(int productId)
+        public async Task<IActionResult> Details(int productId)
         {
-            var product = await _unitOfWork.Products
-                .GetFirstOrDefaultAsync(p => p.Id == productId, "Category,CoverType");
-
+            var product = await _unitOfWork.Products.Set
+                .Include(p=> p.Book)
+                    .ThenInclude(b => b.SubCategory)
+                        .ThenInclude(s => s.Category)
+                .Include(p => p.Book)
+                    .ThenInclude(b => b.Products)
+                        .ThenInclude(p => p.Format)    
+                .Include(p => p.Format)
+                .FirstOrDefaultAsync(b => b.Id == productId);
+            
             if (product == null)
             {
                 NotFound();
             }
+
+            product!.Book.Products = product.Book.Products.OrderBy(p => p.FormatId);
 
             ShoppingCart shoppingCart = new()
             {
@@ -62,7 +71,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async ValueTask<IActionResult> Details(ShoppingCart shoppingCart)
+        public async Task<IActionResult> Details(ShoppingCart shoppingCart)
         {
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

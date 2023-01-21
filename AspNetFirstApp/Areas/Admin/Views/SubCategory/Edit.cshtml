@@ -1,0 +1,33 @@
+﻿@model SubCategoryVM
+
+<form method="post" asp-action="Edit">
+    <input asp-for="SubCategory.Id" hidden />
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">Edit subcategory</h2>
+            <hr/>
+        </div>
+        <div class="mb-3">
+            <label asp-for="SubCategory.Name"></label>
+            <input asp-for="SubCategory.Name" class="form-control"/>
+            <span asp-validation-for="SubCategory.Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="SubCategory.CategoryId"></label>
+            <select asp-for="SubCategory.CategoryId" asp-items="@Model.CategoryList" class="form-select">
+                <option disabled selected>--Select category--</option>
+            </select>
+            <span asp-validation-for="SubCategory.CategoryId" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 150px">Update</button>
+        <a asp-controller="SubCategory" asp-action="Index" class="btn btn-secondary" style="width: 150px">
+            Back to list
+        </a>
+    </div>
+</form>
+
+@section Scripts{
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

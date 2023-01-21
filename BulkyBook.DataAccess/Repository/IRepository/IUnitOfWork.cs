@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BulkyBook.Models;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using BulkyBook.Models;
 
 namespace BulkyBook.DataAccess.Repository.IRepository
 {
     public interface IUnitOfWork : IDisposable
     {
         IRepository<Category> Categories { get; }
-        IRepository<CoverType> CoverTypes { get; }
+        IRepository<SubCategory> SubCategories { get; }
+        IRepository<Format> Formats { get; }
+        IRepository<Book> Books { get; }
         IRepository<Product> Products { get; }
         IRepository<Company> Companies { get; }
         IRepository<ApplicationUser> ApplicationUsers { get; }

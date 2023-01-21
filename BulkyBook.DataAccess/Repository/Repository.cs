@@ -21,6 +21,8 @@ namespace BulkyBook.DataAccess.Repository
             _dbSet = _db.Set<T>();
         }
 
+        public DbSet<T> Set => _dbSet;
+
         public T? GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = _dbSet;
@@ -58,6 +60,7 @@ namespace BulkyBook.DataAccess.Repository
                     .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Aggregate(query, (current, includeProp) => current.Include(includeProp));
             }
+            
             return query.ToList();
         }
 

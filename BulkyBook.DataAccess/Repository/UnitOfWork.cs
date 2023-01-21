@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BulkyBook.DataAccess.Data;
+﻿using BulkyBook.DataAccess.Data;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
+using BulkyBook.Models.ViewModels;
 
 namespace BulkyBook.DataAccess.Repository
 {
@@ -17,7 +13,9 @@ namespace BulkyBook.DataAccess.Repository
         {
             _db = db;
             Categories = new Repository<Category>(_db);
-            CoverTypes = new Repository<CoverType>(_db);
+            SubCategories = new Repository<SubCategory>(_db);
+            Formats = new Repository<Format>(_db);
+            Books = new Repository<Book>(_db);
             Products = new Repository<Product>(_db);
             Companies = new Repository<Company>(_db);
             ShoppingCarts = new Repository<ShoppingCart>(_db);
@@ -27,8 +25,10 @@ namespace BulkyBook.DataAccess.Repository
         }
 
         public IRepository<Category> Categories { get; }
+        public IRepository<SubCategory> SubCategories { get; }
 
-        public IRepository<CoverType> CoverTypes { get; }
+        public IRepository<Format> Formats { get; }
+        public IRepository<Book> Books { get; }
         public IRepository<Product> Products { get; }
         public IRepository<Company> Companies { get; }
         public IRepository<ApplicationUser> ApplicationUsers { get; }

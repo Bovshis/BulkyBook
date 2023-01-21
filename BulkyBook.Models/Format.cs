@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BulkyBook.Models
 {
-    public class CoverType
+    public class Format
     {
         [Key]
         public int Id { get; set; }
-        [DisplayName("Cover Type")]
+        [DisplayName("Format")]
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

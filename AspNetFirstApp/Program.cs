@@ -62,7 +62,7 @@ namespace BulkyBookWeb
 
             app.UseRouting();
             StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Value;
-            SeedDatabase(app);
+            SeedDatabase(app).Wait();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
@@ -76,13 +76,11 @@ namespace BulkyBookWeb
 
         }
 
-        static void SeedDatabase(WebApplication app)
+        private static async Task SeedDatabase(WebApplication app)
         {
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-                dbInitializer.InitializeAsync();
-            }
+            using var scope = app.Services.CreateScope();
+            var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+            await dbInitializer.InitializeAsync();
         }
     }
 }

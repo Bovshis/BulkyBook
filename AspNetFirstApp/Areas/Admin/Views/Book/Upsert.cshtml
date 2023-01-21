@@ -1,0 +1,121 @@
+﻿@model BookVM
+
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    <input asp-for="Book.Id" hidden />
+    <input asp-for="Book.ImageUrl" hidden />
+
+    <div class="row">
+        <div class="col-10">
+            <div class="border p-3 mt-4 row">
+                <div class="col-12 pb-2">
+                    <h2 class="text-primary">@(Model.Book.Id != 0 ? "Update" : "Create") Book</h2>
+                    <hr />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Book.Title"></label>
+                    <input asp-for="Book.Title" class="form-control" />
+                    <span asp-validation-for="Book.Title" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Book.Description"></label>
+                    <textarea asp-for="Book.Description" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="Book.Description" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Book.Author"></label>
+                    <input asp-for="Book.Author" class="form-control" />
+                    <span asp-validation-for="Book.Author" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Book.ImageUrl"></label>
+                    <input type="file" id="uploadBox" name="file" class="form-control" />
+                </div>
+
+                <div class="mb-3 col-6">
+                    <label asp-for="Book.SubCategory.CategoryId"></label>
+                    <select asp-for="Book.SubCategory.CategoryId" asp-items="@Model.CategoryList" onchange="onCategoryChanged(this.value)" class="form-select">
+                        <option disabled selected>--Select category--</option>
+                    </select>
+                    <span asp-validation-for="Book.SubCategory.CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3 col-6">
+                    <label asp-for="Book.SubCategoryId"></label>
+                    <select asp-for="Book.SubCategoryId"  id="subCategoriesList" class="form-select">
+                        <option disabled selected>--Select subcategory--</option>
+                    </select>
+                    <span asp-validation-for="Book.SubCategoryId" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    @if (Model.Book.Id != 0)
+                    {
+                        <button type="submit" class="btn btn-primary" style="width: 150px">Update</button>
+                    }
+                    else
+                    {
+                        <button type="submit" onclick="return ValidateInputImage()" class="btn btn-primary" style="width: 150px">Create</button>
+                    }
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-secondary" style="width:150px">
+                        Back to List
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-2 pt-4">
+            <img src="@Model.Book.ImageUrl" width="100%" style="border-radius: 5px; border: 1px solid #bbb9b9" />
+        </div>
+    </div>
+
+
+</form>
+
+@section Scripts{
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        var categories;
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetCategories")",
+                dataType: "json",
+                success: function (data) {
+                    categories = data;
+                }
+            });
+        });
+
+
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+            toolbar_mode: 'floating',
+        });
+        function ValidateInputImage() {
+            if (document.getElementById("uploadBox").value == "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please upload an Image!',
+                });
+                return false;
+            }
+            return true;
+        };
+
+        function onCategoryChanged(value) {
+            debugger;
+            var subCategoriesList = document.getElementById('subCategoriesList');
+            subCategoriesList.innerHTML = "<option disabled selected>--Select subcategory--</option>";
+            var category = categories.find(c => c.id == value);
+            category.subCategories.forEach(function (subCategory) {
+                subCategoriesList.append(new Option(subCategory.name, subCategory.id));
+            });
+        }
+
+
+
+    </script>
+}

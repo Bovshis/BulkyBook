@@ -1,14 +1,10 @@
-﻿using System.Collections;
-using BulkyBook.DataAccess.Data;
-using BulkyBook.DataAccess.Repository.IRepository;
+﻿using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -31,18 +27,18 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async ValueTask<IActionResult> Upsert(int? id)
+        public async Task<IActionResult> Upsert(int? id)
         {
-            var productVM = new ProductVM
+            var productVm = new ProductVM()
             {
                 Product = new Product(),
-                CategoryList = new SelectList(await _unitOfWork.Categories.GetAllAsync(), "Id", "Name"),
-                CoverTypeList = new SelectList(await _unitOfWork.CoverTypes.GetAllAsync(), "Id", "Name"),
+                FormatList = new SelectList(await _unitOfWork.Formats.GetAllAsync(), "Id", "Name"),
+                BookList = new SelectList(await _unitOfWork.Books.GetAllAsync(), "Id", "DataTextFieldLabel"),
             };
 
             if (id is null or 0)
             {
-                return View(productVM);
+                return View(productVm);
             }
 
             var product = await _unitOfWork.Products.GetFirstOrDefaultAsync(filter: x => x.Id == id);
@@ -51,58 +47,38 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            productVM.Product = product;
-            return View(productVM);
+            productVm.Product = product;
+            return View(productVm);
         }
 
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async ValueTask<IActionResult> Upsert(ProductVM productVM, IFormFile? file)
+        public async Task<IActionResult> Upsert(ProductVM productVm, IFormFile? file)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(productVm);
+
+            if (productVm.Product.Id == 0)
             {
-                string wwwRootPath = _hostEnvironment.WebRootPath;
-                if (file != null)
-                {
-                    if (productVM.Product.ImageUrl != null)
-                    {
-                        var oldImagePath = Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
-                        if (System.IO.File.Exists(oldImagePath))
-                        {
-                            System.IO.File.Delete(oldImagePath);
-                        }
-                    }
-                    string fileName = string.Concat(Guid.NewGuid().ToString(), Path.GetExtension(file.FileName));
-                    string uploads = Path.Combine(wwwRootPath, @"images\products");
-                    await using var fileStream = new FileStream(Path.Combine(uploads, fileName), FileMode.Create);
-                    await file.CopyToAsync(fileStream);
-                    productVM.Product.ImageUrl = Path.Combine(@"\images\products", fileName);
-                }
-
-                if (productVM.Product.Id == 0)
-                {
-                    await _unitOfWork.Products.AddAsync(productVM.Product);
-                }
-                else
-                {
-                    _unitOfWork.Products.Update(productVM.Product);
-                }
-
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Product created successfully";
-                return RedirectToAction("Index");
+                await _unitOfWork.Products.AddAsync(productVm.Product);
+            }
+            else
+            {
+                _unitOfWork.Products.Update(productVm.Product);
             }
 
-            return View(productVM);
+            await _unitOfWork.SaveAsync();
+            TempData["success"] = "Product created successfully";
+            return RedirectToAction(nameof(Index));
+
         }
 
         #region API CALLS
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var productList = await _unitOfWork.Products.GetAllAsync(includeProperties: "Category,CoverType");
-            return Json(new { data = productList });
+            var products = await _unitOfWork.Products.GetAllAsync(includeProperties:"Format");
+            return Json(new { data = products });
         }
 
         [HttpDelete]
@@ -112,15 +88,6 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             if (product == null)
             {
                 return Json(new { success = false, message = "Error while deleting" });
-            }
-
-            if (product.ImageUrl != null)
-            {
-                var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, product.ImageUrl.TrimStart('\\'));
-                if (System.IO.File.Exists(oldImagePath))
-                {
-                    System.IO.File.Delete(oldImagePath);
-                }
             }
             _unitOfWork.Products.Remove(product);
             await _unitOfWork.SaveAsync();

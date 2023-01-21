@@ -1,29 +1,25 @@
-﻿using System.Collections;
-using BulkyBook.DataAccess.Data;
-using BulkyBook.DataAccess.Repository.IRepository;
+﻿using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = UserRole.Admin)]
-    public class CoverTypeController : Controller
+    public class FormatController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public CoverTypeController(IUnitOfWork unitOfWork)
+        public FormatController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _unitOfWork.CoverTypes.GetAllAsync());
+            return View(await _unitOfWork.Formats.GetAllAsync());
         }
 
         //GET
@@ -35,11 +31,11 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async ValueTask<IActionResult> Create(CoverType coverType)
+        public async ValueTask<IActionResult> Create(Format coverType)
         {
             if (ModelState.IsValid)
             {
-                await _unitOfWork.CoverTypes.AddAsync(coverType);
+                await _unitOfWork.Formats.AddAsync(coverType);
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "CoverType created successfully";
                 return RedirectToAction("Index");
@@ -56,7 +52,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var coverType = await _unitOfWork.CoverTypes.GetFirstOrDefaultAsync(u => u.Id == id);
+            var coverType = await _unitOfWork.Formats.GetFirstOrDefaultAsync(u => u.Id == id);
             if (coverType == null)
             {
                 return NotFound();
@@ -68,11 +64,11 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async ValueTask<IActionResult> Edit(CoverType coverType)
+        public async ValueTask<IActionResult> Edit(Format coverType)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.CoverTypes.Update(coverType);
+                _unitOfWork.Formats.Update(coverType);
                 await _unitOfWork.SaveAsync();
                 TempData["success"] = "CoverType edited successfully";
                 return RedirectToAction("Index");
@@ -89,7 +85,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var coverType = await _unitOfWork.CoverTypes.GetFirstOrDefaultAsync(u => u.Id == id);
+            var coverType = await _unitOfWork.Formats.GetFirstOrDefaultAsync(u => u.Id == id);
             if (coverType == null)
             {
                 return NotFound();
@@ -103,13 +99,13 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async ValueTask<IActionResult> DeletePost(int? id)
         {
-            var coverType = await _unitOfWork.CoverTypes.GetFirstOrDefaultAsync(u => u.Id == id);
+            var coverType = await _unitOfWork.Formats.GetFirstOrDefaultAsync(u => u.Id == id);
             if (coverType == null)
             {
                 return NotFound();
             }
 
-            _unitOfWork.CoverTypes.Remove(coverType);
+            _unitOfWork.Formats.Remove(coverType);
             await _unitOfWork.SaveAsync();
             TempData["success"] = "CoverType deleted successfully";
             return RedirectToAction("Index");

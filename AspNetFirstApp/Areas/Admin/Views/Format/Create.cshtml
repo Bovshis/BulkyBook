@@ -1,9 +1,9 @@
-﻿@model CoverType
+﻿@model Format
 
-<form method="post" asp-action="Edit">
+<form method="post">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Edit CoverType</h2>
+            <h2 class="text-primary">Create format</h2>
             <hr />
         </div>
         <div class="mb-3">
@@ -12,9 +12,9 @@
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary" style="width:150px">Update</button>
-        <a asp-area="Customer" asp-controller="CoverType" asp-action="Index" class="btn btn-secondary" style="width:150px">
-            Back to List
+        <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
+        <a asp-area="Admin" asp-controller="Format" asp-action="Index" class="btn btn-secondary" style="width:150px">
+            Back to list
         </a>
     </div>
 </form>

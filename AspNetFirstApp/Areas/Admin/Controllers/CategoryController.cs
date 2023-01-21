@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using BulkyBook.DataAccess.Data;
-using BulkyBook.DataAccess.Repository.IRepository;
+﻿using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -37,15 +33,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async ValueTask<IActionResult> Create(Category category)
         {
-            if (ModelState.IsValid)
-            {
-                await _unitOfWork.Categories.AddAsync(category);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Category created successfully";
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(category);
 
-            return View(category);
+            await _unitOfWork.Categories.AddAsync(category);
+            await _unitOfWork.SaveAsync();
+            TempData["success"] = "Category created successfully";
+
+            return RedirectToAction("Index");
+
         }
 
         //GET
@@ -70,15 +65,14 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async ValueTask<IActionResult> Edit(Category category)
         {
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Categories.Update(category);
-                await _unitOfWork.SaveAsync();
-                TempData["success"] = "Category edited successfully";
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid) return View(category);
 
-            return View(category);
+            _unitOfWork.Categories.Update(category);
+            await _unitOfWork.SaveAsync();
+            TempData["success"] = "Category edited successfully";
+
+            return RedirectToAction("Index");
+
         }
 
         //GET

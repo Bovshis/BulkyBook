@@ -38,6 +38,7 @@ namespace BulkyBook.DataAccess.DbInitializer
 
             }
 
+
             if (!await _roleManager.RoleExistsAsync(UserRole.Admin))
             {
                 await _roleManager.CreateAsync(new IdentityRole(UserRole.Admin));
