@@ -84,6 +84,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 .GetFirstOrDefaultAsync(sc=> sc.ApplicationUserId == userId && sc.ProductId == shoppingCart.ProductId);
             if (cartFromDb == null)
             {
+                shoppingCart.Count = 1;
                 shoppingCart.ApplicationUserId = userId;
                 await _unitOfWork.ShoppingCarts.AddAsync(shoppingCart);
                 await _unitOfWork.SaveAsync();

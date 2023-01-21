@@ -16,7 +16,7 @@
                                 <p class="card-title text-info">by <b>@book.Author</b></p>
                             </div>
                             <div class="pl-1">
-                                <p>From: <b>$@book.Products.Select(p => p.Price).Min().ToString("0.00")</b></p>
+                                <p>From: <b>$@book.Products.Select(p => p.SalePrice).Min().ToString("0.00")</b></p>
                             </div>
                         </div>
                     </div>

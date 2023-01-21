@@ -4,6 +4,7 @@ using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using BulkyBook.Utility;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
@@ -20,7 +21,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var userId = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -31,14 +32,15 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             ShoppingCartVM = new ShoppingCartVM()
             {
-                ListCart = await _unitOfWork.ShoppingCarts.GetAllAsync(u => u.ApplicationUserId == userId,
-                    includeProperties: "Product,Amount"),
+                ListCart = _unitOfWork.ShoppingCarts.Set
+                    .Include(s => s.Product)
+                        .ThenInclude(p => p.Book)
+                    .Where(s => s.ApplicationUserId == userId),
                 OrderHeader = new OrderHeader(),
             }; 
             foreach (var cart in ShoppingCartVM.ListCart)
             {
-                //cart.Amount = cart.Product.PriceList.Amount;
-                cart.Price = 1;
+                cart.Price = cart.Product.SalePrice;
                 ShoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
             }
             return View(ShoppingCartVM);
@@ -55,8 +57,10 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             ShoppingCartVM = new ShoppingCartVM()
             {
-                ListCart = await _unitOfWork.ShoppingCarts.GetAllAsync(u => u.ApplicationUserId == userId,
-                    includeProperties: "Product,Amount"),
+                ListCart = _unitOfWork.ShoppingCarts.Set
+                    .Include(s => s.Product)
+                    .ThenInclude(p => p.Book)
+                    .Where(s => s.ApplicationUserId == userId),
                 OrderHeader = new OrderHeader(),
             };
 
@@ -76,8 +80,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
             foreach (var cart in ShoppingCartVM.ListCart)
             {
-                //cart.Amount = cart.Product.PriceList.Amount;
-                cart.Price = 1;
+                cart.Price = cart.Product.SalePrice;
                 ShoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
             }
             return View(ShoppingCartVM);
@@ -95,15 +98,16 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 NotFound();
             }
 
-            ShoppingCartVM.ListCart = await _unitOfWork.ShoppingCarts.GetAllAsync(u => u.ApplicationUserId == userId, 
-                includeProperties: "Product,Amount");
+            ShoppingCartVM.ListCart = _unitOfWork.ShoppingCarts.Set
+                .Include(s => s.Product)
+                    .ThenInclude(p => p.Book)
+                .Where(s => s.ApplicationUserId == userId);
             ShoppingCartVM.OrderHeader.OrderDate = DateTime.Now;
             ShoppingCartVM.OrderHeader.ApplicationUserId = userId!;
 
             foreach (var cart in ShoppingCartVM.ListCart)
             {
-                //cart.Amount = cart.Product.PriceList.Amount;
-                cart.Price = 1;
+                cart.Price = cart.Product.SalePrice;
                 ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
 
@@ -238,6 +242,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             if (cart!.Count <= 1)
             {
                 _unitOfWork.ShoppingCarts.Remove(cart);
+                await _unitOfWork.SaveAsync();
                 HttpContext.Session.SetInt32(SessionInfo.SessionCart, _unitOfWork.ShoppingCarts
                     .GetAllAsync(u => u.ApplicationUserId == cart.ApplicationUserId).GetAwaiter().GetResult().ToList().Count);
             }
