@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Product>
+
+<section class="justify-content-around">
+    <form class="form-inline my-2 my-lg-0 d-flex">
+        <input class="form-control ms-2" id="search-item" type="search" placeholder="Search" aria-label="Search" onkeyup="search()">
+        <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+            <i class="bi bi-search"></i>
+        </a>
+    </form>
+
+    <div class="product-list fixed-top" id="product-list">
+        @foreach (var product in Model)
+        {
+            <div class="product">
+                <img src="@product.Book.ImageUrl" class="rounded" />
+                <div class="p-details">
+                    <h2>@product.Book.Title</h2>
+                    <h3>@product.Book.Author</h3>
+                    <h3>@product.Price</h3>
+                </div>
+            </div>
+        }
+    </div>
+    <script src="~/js/searchbox.js"></script>
+</section>
