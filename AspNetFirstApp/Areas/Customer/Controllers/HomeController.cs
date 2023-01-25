@@ -24,6 +24,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         public async Task<IActionResult> Index()
         {
             IEnumerable<Book> books = await _unitOfWork.Books.GetAllAsync(includeProperties: "SubCategory,Products");
+            books = books.Where(b => b.Products.Any());
             return View(books);
         }
 

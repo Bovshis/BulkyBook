@@ -1,36 +1,61 @@
 ﻿@model IEnumerable<Book>
 
 <div class="container p-3">
-    <div class="row pt-4">
-        <div class="col-6">
-            <h2 class="text-primary">@Model.First().SubCategory.Name</h2>
-        </div>
-    </div>
-    @foreach (var book in Model)
-    {
-        <div class="col-lg-3 col-md-6">
-            <div class="row p-2">
-                <div class="col-12 p-1" style="border: 1px solid #008cba; border-radius: 5px;">
-                    <div class="card">
-                        <img src="@book.ImageUrl" class="card-img-top rounded" />
-
-                        <div class="card-body">
-                            <div class="pl-1">
-                                <p class="card-title h5 text-primary">@book.Title</p>
-                                <p class="card-title text-info">by <b>@book.Author</b></p>
-                            </div>
-                            <div class="pl-1">
-                                <p>From: <b>$@book.Products.Select(p => p.SalePrice).Min().ToString("0.00")</b></p>
+    <h2 class="text-primary">@Model.First().SubCategory.Name</h2>
+    <div class="row">
+        <div class="col-3">
+            <div class="p-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="text-uppercase">Authors</h6>
+                    <span>--</span>
+                </div>
+                <div id="authorCheckboxes">
+                    @foreach (var author in Model.Select(b => b.Author).Distinct().OrderBy(a => a))
+                    {
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@author" onclick="getAuthors(@Model.First().SubCategory.Id)">
+                                <label class="form-check-label">@author</label>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <a asp-controller="Home" asp-action="Details" class="btn btn-primary form-control" asp-route-productId="@book.Products.First().Id">
-                            Details
-                        </a>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
-    }
+        <div class="col-9">
+            <div class="row pb-3">
+                @foreach (var book in Model)
+                {
+                    <div class="col-lg-3">
+                        <div class="row p-2">
+                            <div class="col-12 p-1 book-card" style="border: 1px solid #008cba; border-radius: 5px;">
+                                <div class="card">
+                                    <img src="@book.ImageUrl" class="card-img-top rounded book-img" />
+
+                                    <div class="card-body">
+                                        <div class="pl-1">
+                                            <p class="card-title h5 text-primary">@book.Title</p>
+                                            <p class="card-title text-info"><b>@book.Author</b></p>
+                                        </div>
+                                        <div class="pl-1">
+                                            <p>From: <b>$@book.Products.Select(p => p.SalePrice).Min().ToString("0.00")</b></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a asp-controller="Home" asp-action="Details" class="btn btn-primary form-control" asp-route-productId="@book.Products.First().Id">
+                                        Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts{
+    <script src="~/js/filter.js"></script>
+}

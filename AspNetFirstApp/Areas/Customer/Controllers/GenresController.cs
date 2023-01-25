@@ -33,5 +33,17 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 .GetAllAsync(b => b.SubCategoryId == subcategoryId, includeProperties: "Products,SubCategory");
             return View(books);
         }
+
+        public async Task<IActionResult> GetBooks(int subcategoryId, IEnumerable<string>? authors = null)
+        {
+            var books = await _unitOfWork.Books
+                .GetAllAsync(b => b.SubCategoryId == subcategoryId, includeProperties: "Products,SubCategory");
+            if (authors != null)
+            {
+                books = books.Where(b => authors.Contains(b.Author));
+            }
+
+            return PartialView("_GetBooks", books);
+        }
     }
 }

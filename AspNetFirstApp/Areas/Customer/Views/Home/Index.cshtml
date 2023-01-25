@@ -1,32 +1,25 @@
 ﻿@model IEnumerable<Book>
 
 
-<div class="row pb-3">
+<div class="row">
     @foreach(var book in Model)
     {
-        <div class="col-lg-3 col-md-6">
-            <div class="row p-2">
-                <div class="col-12 p-1" style="border:1px solid #008cba; border-radius: 5px;">
-                    <div class="card">
-                        <img src="@book.ImageUrl" class="card-img-top rounded" />
+        <div class="col-2 m-1 d-flex align-items-stretch" style="border:1px solid #008cba; border-radius: 5px;">
+            <div class="card py-2">
+                <img src="@book.ImageUrl" class="card-img-top rounded book-img" />
 
-                        <div class="card-body">
-                            <div class="pl-1">
-                                <p class="card-title h5 text-primary">@book.Title</p>
-                                <p class="card-title text-info">by <b>@book.Author</b></p>
-                            </div>
-                            <div class="pl-1">
-                                <p>From: <b>$@book.Products.Select(p => p.SalePrice).Min().ToString("0.00")</b></p>
-                            </div>
-                        </div>
+                <div class="card-body" >
+                    <div class="pl-1">
+                        <p class="card-title h5 text-primary" >@book.Title</p>
+                        <p class="card-title text-info"><b>@book.Author</b></p>
+                        <p >From: <b>$@book.Products.Select(p => p.SalePrice).Min().ToString("0.00")</b></p>
                     </div>
-                    <div>
-                        <a asp-action="Details" class="btn btn-primary form-control" asp-route-productId="@book.Products.First().Id">
-                            Details
-                        </a>
-                    </div>
-                </div> 
+                </div>
+
+                <a class="btn btn-primary form-control bottom-100"  asp-action="Details" asp-route-productId="@book.Products.First().Id">
+                    Details
+                </a>
             </div>
-        </div>
+        </div> 
     }
 </div>

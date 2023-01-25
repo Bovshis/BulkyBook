@@ -1,3 +1,13 @@
+.book-card {
+    display: block;
+}
+
+.book-img {
+    height: 260px;
+}
+
+
+
 .product-list::-webkit-scrollbar {
     display: none;
 }
@@ -65,8 +75,8 @@
 
 @media (min-width: 768px) {
     .carousel-item {
-        margin-right: 0;
-        flex: 0 0 33.333333%;
+        margin-right: 10px;
+        flex: 0 0 20%;
         display: block;
     }
 
